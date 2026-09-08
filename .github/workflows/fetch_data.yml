@@ -19,16 +19,32 @@ jobs:
         env:
           GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          # 1. Query Gemini with explicit instructions to output raw JSON
-          curl -X POST "[https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$){GEMINI_KEY}" \
+          # 1. Check if GEMINI_API_KEY secret exists
+          if [ -z "$GEMINI_KEY" ]; then
+            echo "Error: GEMINI_API_KEY secret is missing or empty!"
+            exit 1
+          fi
+
+          # 2. Call Gemini API
+          HTTP_STATUS=$(curl -s -o gemini_raw.json -w "%{http_code}" \
+            -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}" \
             -H "Content-Type: application/json" \
             -d '{
               "contents": [{
                 "parts": [{"text": "Return ONLY a valid JSON array of 2 sample IPOs without markdown code blocks or extra text. Schema: [{\"company_name\":\"Name\",\"price_band\":\"₹100-110\",\"ofs_split\":\"70/30\",\"verdict\":\"BUY\"}]"}]
               }]
-            }' > gemini_raw.json
+            }')
 
-          # 2. Extract and sanitize string
+          echo "Gemini API HTTP Status: $HTTP_STATUS"
+
+          # 3. Check for successful HTTP request
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "API request failed with status $HTTP_STATUS"
+            cat gemini_raw.json
+            exit 1
+          fi
+
+          # 4. Extract and clean data safely
           cat gemini_raw.json | jq -r '.candidates[0].content.parts[0].text' | sed 's/```json//g' | sed 's/```//g' > data.json
 
       - name: Commit data.json back to Repository
