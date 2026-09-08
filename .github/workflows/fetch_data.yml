@@ -24,9 +24,9 @@ jobs:
             exit 1
           fi
 
-          # Updated endpoint using gemini-2.5-flash
+          # Updated endpoint using gemini-3.6-flash
           HTTP_STATUS=$(curl -s -o gemini_raw.json -w "%{http_code}" \
-            -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}" \
+            -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_KEY}" \
             -H "Content-Type: application/json" \
             -d '{
               "contents": [{
