@@ -1,1 +1,20 @@
-[{"company_name":"ABC Tech Solutions Ltd","price_band":"₹250-265","ofs_split":"60/40","verdict":"BUY"},{"company_name":"XYZ Logistics Services India Ltd","price_band":"₹120-130","ofs_split":"80/20","verdict":"AVOID"}]
+[
+  {
+    "company_name": "NTPC Green Energy Limited",
+    "price_band": "₹102-108",
+    "ofs_split": "Fresh Only",
+    "verdict": "SUBSCRIBE"
+  },
+  {
+    "company_name": "Swiggy Limited",
+    "price_band": "₹371-390",
+    "ofs_split": "40/60",
+    "verdict": "CAUTION"
+  },
+  {
+    "company_name": "Waaree Energies Limited",
+    "price_band": "₹1427-1503",
+    "ofs_split": "83/17",
+    "verdict": "SUBSCRIBE"
+  }
+]
