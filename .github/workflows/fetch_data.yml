@@ -1,0 +1,40 @@
+name: Generate IPO JSON
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs automatically every day at 2:00 AM UTC
+  workflow_dispatch:      # Enables a manual "Run" button in GitHub UI
+
+jobs:
+  build-json:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write    # Grants permission to save files to the repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch AI Analysis & Generate JSON
+        env:
+          GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          # 1. Ask Gemini to generate structured sample IPO JSON
+          curl -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "contents": [{
+                "parts": [{"text": "Generate a JSON array of 2 upcoming sample IPOs. Each object must have keys: company_name, price_band, ofs_split, verdict. Output ONLY raw JSON without markdown codeblocks."}]
+              }]
+            }' > gemini_raw.json
+
+          # 2. Extract clean text out of Gemini's response
+          cat gemini_raw.json | jq -r '.candidates[0].content.parts[0].text' > data.json
+
+      - name: Commit data.json back to Repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git commit -m "Automated IPO data update" || exit 0
+          git push
