@@ -24,13 +24,13 @@ jobs:
             exit 1
           fi
 
-          # Updated endpoint using gemini-3.6-flash
+          # REAL PROMPT: Querying Gemini for active/upcoming Indian IPOs
           HTTP_STATUS=$(curl -s -o gemini_raw.json -w "%{http_code}" \
             -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_KEY}" \
             -H "Content-Type: application/json" \
             -d '{
               "contents": [{
-                "parts": [{"text": "Return ONLY a valid JSON array of 2 sample IPOs without markdown code blocks. Schema: [{\"company_name\":\"Name\",\"price_band\":\"₹100-110\",\"ofs_split\":\"70/30\",\"verdict\":\"BUY\"}]"}]
+                "parts": [{"text": "List 3 real ongoing or upcoming Indian mainboard IPOs right now. Return ONLY a valid JSON array without markdown formatting or code blocks. JSON Schema: [{\"company_name\": \"Real Company Name\", \"price_band\": \"₹100-110\", \"ofs_split\": \"70/30 or Fresh Only\", \"verdict\": \"SUBSCRIBE / AVOID / CAUTION\"}]"}]
               }]
             }')
 
