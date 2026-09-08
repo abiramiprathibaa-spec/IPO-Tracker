@@ -24,13 +24,14 @@ jobs:
             exit 1
           fi
 
-          # REAL PROMPT: Querying Gemini for active/upcoming Indian IPOs
+          # Enable google_search tool in the request body
           HTTP_STATUS=$(curl -s -o gemini_raw.json -w "%{http_code}" \
             -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_KEY}" \
             -H "Content-Type: application/json" \
             -d '{
+              "tools": [{"google_search": {}}],
               "contents": [{
-                "parts": [{"text": "List 3 real ongoing or upcoming Indian mainboard IPOs right now. Return ONLY a valid JSON array without markdown formatting or code blocks. JSON Schema: [{\"company_name\": \"Real Company Name\", \"price_band\": \"₹100-110\", \"ofs_split\": \"70/30 or Fresh Only\", \"verdict\": \"SUBSCRIBE / AVOID / CAUTION\"}]"}]
+                "parts": [{"text": "Search for live ongoing or upcoming Indian mainboard IPOs right now on Chittorgarh or NSE/BSE. Return ONLY a valid JSON array of 3 real companies without markdown code blocks or conversational text. JSON Schema: [{\"company_name\": \"Exact Company Name\", \"price_band\": \"₹X - ₹Y\", \"ofs_split\": \"Fresh/OFS Details\", \"verdict\": \"SUBSCRIBE / AVOID\"}]"}]
               }]
             }')
 
@@ -42,7 +43,7 @@ jobs:
             exit 1
           fi
 
-          # Extract and clean output
+          # Extract text response from Gemini grounding output
           cat gemini_raw.json | jq -r '.candidates[0].content.parts[0].text' | sed 's/```json//g' | sed 's/```//g' > data.json
 
       - name: Commit data.json back to Repository
